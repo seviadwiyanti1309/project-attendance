@@ -1,0 +1,36 @@
+# 1. LARAVEL BACKEND (siabsen-backend)
+siabsen-backend/.env
+siabsen-backend/.env.backup
+siabsen-backend/.env.production
+siabsen-backend/database/database.sqlite
+siabsen-backend/database/database.sqlite-journal
+siabsen-backend/vendor/
+siabsen-backend/node_modules/
+siabsen-backend/public/storage
+siabsen-backend/storage/*.key
+siabsen-backend/storage/app/public/*
+!siabsen-backend/storage/app/public/.gitignore
+siabsen-backend/storage/framework/cache/*
+siabsen-backend/storage/framework/sessions/*
+siabsen-backend/storage/framework/views/*
+siabsen-backend/storage/logs/*
+!siabsen-backend/storage/logs/.gitignore
+siabsen-backend/.phpunit.result.cache
+
+# 2. FLUTTER MOBILE
+**/build/
+**/.dart_tool/
+**/.fvm/
+**/.idea/
+**/.vscode/
+**/.packages
+**/.pub-cache/
+**/.pub/
+**/ios/Pods/
+**/ios/Podfile.lock
+
+
+# 3. SYSTEM / OS
+.DS_Store
+Thumbs.db
+*.log
