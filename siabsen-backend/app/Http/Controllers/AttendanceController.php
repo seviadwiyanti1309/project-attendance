@@ -106,4 +106,39 @@ class AttendanceController extends Controller
 
         return response()->json($attendances);
     }
+
+    public function monthlyRecap(Request $request)
+    {
+        $month = $request->query('month', now()->month);
+        $year = $request->query('year', now()->year);
+
+        $employees = \App\Models\User::where('role', 'karyawan')->get();
+
+        $recap = $employees->map(function ($employee) use ($month, $year) {
+            $attendances = Attendance::where('user_id', $employee->id)
+                ->whereMonth('date', $month)
+                ->whereYear('date', $year)
+                ->get();
+
+            $totalOvertimeMinutes = $attendances->sum('overtime_minutes');
+            $totalHadir = $attendances->count();
+            $totalTelat = $attendances->where('status', 'telat')->count();
+
+            $hourlyRate = $employee->base_salary / 173; // 173 = rata-rata jam kerja/bulan
+            $overtimePay = ($totalOvertimeMinutes / 60) * $hourlyRate * 1.5;
+
+            return [
+                'employee_id' => $employee->id,
+                'name' => $employee->name,
+                'total_hadir' => $totalHadir,
+                'total_telat' => $totalTelat,
+                'total_overtime_minutes' => $totalOvertimeMinutes,
+                'base_salary' => $employee->base_salary,
+                'estimated_overtime_pay' => round($overtimePay, 2),
+                'estimated_total_salary' => round($employee->base_salary + $overtimePay, 2),
+            ];
+        });
+
+        return response()->json($recap);
+    }
 }
