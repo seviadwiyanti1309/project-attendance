@@ -50,4 +50,9 @@ class AdminRepositoryImpl implements AdminRepository {
       'base_salary': baseSalary,
     });
   }
+
+  @override
+  Future<void> deleteEmployee(int id) async {
+    await apiClient.delete('${ApiConstants.employees}/$id');
+  }
 }

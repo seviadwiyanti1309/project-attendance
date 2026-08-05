@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:siabsen_app/features/admin/domain/usecases/delete_employee_usecase.dart';
 import 'package:siabsen_app/features/admin/domain/usecases/get_monthly_recap_usecase.dart';
 import '../../domain/usecases/get_dashboard_summary_usecase.dart';
 import '../../domain/usecases/get_employees_usecase.dart';
@@ -11,9 +12,10 @@ class AdminCubit extends Cubit<AdminState> {
   final GetEmployeesUsecase getEmployeesUsecase;
   final AddEmployeeUsecase addEmployeeUsecase;
   final GetMonthlyRecapUsecase getMonthlyRecapUsecase;
+  final DeleteEmployeeUsecase deleteEmployeeUsecase;
 
 
-  AdminCubit(this.getDashboardSummaryUsecase, this.getEmployeesUsecase, this.addEmployeeUsecase, this.getMonthlyRecapUsecase)
+  AdminCubit(this.getDashboardSummaryUsecase, this.getEmployeesUsecase, this.addEmployeeUsecase, this.getMonthlyRecapUsecase, this.deleteEmployeeUsecase)
       : super(AdminInitial());
 
   Future<void> loadDashboard() async {
@@ -71,6 +73,17 @@ class AdminCubit extends Cubit<AdminState> {
       emit(AdminFailure(e.message));
     } catch (e) {
       emit(AdminFailure('Gagal memuat rekap'));
+    }
+  }
+
+  Future<void> deleteEmployee(int id) async {
+    try {
+      await deleteEmployeeUsecase(id);
+      loadEmployees();
+    } on ApiException catch (e) {
+      emit(AdminFailure(e.message));
+    } catch (e) {
+      emit(AdminFailure('Gagal menghapus karyawan'));
     }
   }
 }

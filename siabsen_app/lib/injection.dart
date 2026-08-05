@@ -21,6 +21,7 @@ import 'features/admin/domain/usecases/get_dashboard_summary_usecase.dart';
 import 'features/admin/domain/usecases/get_employees_usecase.dart';
 import 'features/admin/domain/usecases/add_employee_usecase.dart';
 import 'features/admin/presentation/cubit/admin_cubit.dart';
+import 'features/admin/domain/usecases/delete_employee_usecase.dart';
 
 final getIt = GetIt.instance;
 
@@ -53,5 +54,6 @@ void setupInjection() {
   getIt.registerLazySingleton(() => GetEmployeesUsecase(getIt()));
   getIt.registerLazySingleton(() => AddEmployeeUsecase(getIt()));
   getIt.registerLazySingleton(() => GetMonthlyRecapUsecase(getIt()));
-  getIt.registerFactory(() => AdminCubit(getIt(), getIt(), getIt(), getIt()));
+  getIt.registerLazySingleton(() => DeleteEmployeeUsecase(getIt()));
+  getIt.registerFactory(() => AdminCubit(getIt(), getIt(), getIt(), getIt(), getIt()));
 }

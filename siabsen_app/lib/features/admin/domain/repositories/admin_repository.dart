@@ -5,6 +5,7 @@ import '../entities/recap_entity.dart';
 abstract class AdminRepository {
   Future<DashboardSummaryEntity> getDashboardSummary();
   Future<List<EmployeeEntity>> getEmployees();
+  Future<void> deleteEmployee(int id);
   Future<void> addEmployee({
     required String name,
     required String email,

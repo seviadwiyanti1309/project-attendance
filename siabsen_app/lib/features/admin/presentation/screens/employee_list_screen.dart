@@ -68,42 +68,69 @@ class _EmployeeListScreenState extends State<EmployeeListScreen> {
                 padding: const EdgeInsets.all(20),
                 itemCount: state.employees.length,
                 itemBuilder: (context, index) {
-                  final emp = state.employees[index];
-                  return Container(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: AppColors.cardWhite,
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 8, offset: const Offset(0, 2))
-                      ],
-                    ),
-                    child: Row(
-                      children: [
-                        CircleAvatar(
-                          radius: 22,
-                          backgroundColor: AppColors.primaryLight,
-                          child: Text(emp.name[0].toUpperCase(),
-                              style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold)),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(emp.name,
-                                  style: GoogleFonts.plusJakartaSans(
-                                      fontWeight: FontWeight.w600, color: AppColors.textDark)),
-                              Text(emp.position ?? emp.email,
-                                  style: GoogleFonts.plusJakartaSans(fontSize: 12, color: AppColors.textGrey)),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                },
+  final emp = state.employees[index];
+  return Dismissible(
+    key: Key(emp.id.toString()),
+    direction: DismissDirection.endToStart,
+    background: Container(
+      alignment: Alignment.centerRight,
+      padding: const EdgeInsets.only(right: 20),
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: AppColors.danger,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: const Icon(Icons.delete_rounded, color: Colors.white),
+    ),
+    confirmDismiss: (direction) async {
+      return await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('Hapus Karyawan'),
+          content: Text('Yakin mau hapus ${emp.name}?'),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Batal')),
+            TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Hapus')),
+          ],
+        ),
+      );
+    },
+    onDismissed: (direction) {
+      _adminCubit.deleteEmployee(emp.id);
+    },
+    child: Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.cardWhite,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 8, offset: const Offset(0, 2))],
+      ),
+      child: Row(
+        children: [
+          CircleAvatar(
+            radius: 22,
+            backgroundColor: AppColors.primaryLight,
+            child: Text(emp.name[0].toUpperCase(),
+                style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold)),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(emp.name,
+                    style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w600, color: AppColors.textDark)),
+                Text(emp.position ?? emp.email,
+                    style: GoogleFonts.plusJakartaSans(fontSize: 12, color: AppColors.textGrey)),
+              ],
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
               );
             }
             return const SizedBox();
