@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:siabsen_app/features/admin/domain/usecases/get_monthly_recap_usecase.dart';
 import '../../domain/usecases/get_dashboard_summary_usecase.dart';
 import '../../domain/usecases/get_employees_usecase.dart';
 import '../../domain/usecases/add_employee_usecase.dart';
@@ -9,8 +10,10 @@ class AdminCubit extends Cubit<AdminState> {
   final GetDashboardSummaryUsecase getDashboardSummaryUsecase;
   final GetEmployeesUsecase getEmployeesUsecase;
   final AddEmployeeUsecase addEmployeeUsecase;
+  final GetMonthlyRecapUsecase getMonthlyRecapUsecase;
 
-  AdminCubit(this.getDashboardSummaryUsecase, this.getEmployeesUsecase, this.addEmployeeUsecase)
+
+  AdminCubit(this.getDashboardSummaryUsecase, this.getEmployeesUsecase, this.addEmployeeUsecase, this.getMonthlyRecapUsecase)
       : super(AdminInitial());
 
   Future<void> loadDashboard() async {
@@ -56,6 +59,18 @@ class AdminCubit extends Cubit<AdminState> {
       emit(AdminFailure(e.message));
     } catch (e) {
       emit(AdminFailure('Gagal menambah karyawan'));
+    }
+  }
+
+  Future<void> loadMonthlyRecap({required int month, required int year}) async {
+    emit(AdminLoading());
+    try {
+      final recap = await getMonthlyRecapUsecase(month: month, year: year);
+      emit(RecapLoaded(recap));
+    } on ApiException catch (e) {
+      emit(AdminFailure(e.message));
+    } catch (e) {
+      emit(AdminFailure('Gagal memuat rekap'));
     }
   }
 }

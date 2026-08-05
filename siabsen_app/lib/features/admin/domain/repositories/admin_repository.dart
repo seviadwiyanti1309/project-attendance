@@ -1,5 +1,6 @@
 import '../entities/dashboard_summary_entity.dart';
 import '../entities/employee_entity.dart';
+import '../entities/recap_entity.dart';
 
 abstract class AdminRepository {
   Future<DashboardSummaryEntity> getDashboardSummary();
@@ -11,4 +12,5 @@ abstract class AdminRepository {
     String? position,
     double? baseSalary,
   });
+  Future<List<RecapEntity>> getMonthlyRecap({required int month, required int year});
 }

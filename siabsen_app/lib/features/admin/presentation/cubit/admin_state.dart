@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:siabsen_app/features/admin/domain/entities/recap_entity.dart';
 import '../../domain/entities/dashboard_summary_entity.dart';
 import '../../domain/entities/employee_entity.dart';
 
@@ -27,4 +28,11 @@ class AdminFailure extends AdminState {
   AdminFailure(this.message);
   @override
   List<Object?> get props => [message];
+}
+
+class RecapLoaded extends AdminState {
+  final List<RecapEntity> recap;
+  RecapLoaded(this.recap);
+  @override
+  List<Object?> get props => [recap];
 }

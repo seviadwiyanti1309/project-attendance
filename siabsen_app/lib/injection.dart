@@ -1,4 +1,5 @@
 import 'package:get_it/get_it.dart';
+import 'package:siabsen_app/features/admin/domain/usecases/get_monthly_recap_usecase.dart';
 import 'core/network/api_client.dart';
 import 'core/utils/token_manager.dart';
 
@@ -51,5 +52,6 @@ void setupInjection() {
   getIt.registerLazySingleton(() => GetDashboardSummaryUsecase(getIt()));
   getIt.registerLazySingleton(() => GetEmployeesUsecase(getIt()));
   getIt.registerLazySingleton(() => AddEmployeeUsecase(getIt()));
-  getIt.registerFactory(() => AdminCubit(getIt(), getIt(), getIt()));
+  getIt.registerLazySingleton(() => GetMonthlyRecapUsecase(getIt()));
+  getIt.registerFactory(() => AdminCubit(getIt(), getIt(), getIt(), getIt()));
 }

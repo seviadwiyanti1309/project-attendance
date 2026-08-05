@@ -1,3 +1,6 @@
+import 'package:siabsen_app/features/admin/data/models/recap_model.dart';
+import 'package:siabsen_app/features/admin/domain/entities/recap_entity.dart';
+
 import '../../../../core/network/api_client.dart';
 import '../../../../core/constants/api_constants.dart';
 import '../../domain/entities/dashboard_summary_entity.dart';
@@ -20,6 +23,15 @@ class AdminRepositoryImpl implements AdminRepository {
   Future<List<EmployeeEntity>> getEmployees() async {
     final response = await apiClient.get(ApiConstants.employees);
     return (response as List).map((e) => EmployeeModel.fromJson(e)).toList();
+  }
+
+  @override
+  Future<List<RecapEntity>> getMonthlyRecap({required int month, required int year}) async {
+    final response = await apiClient.get(
+      ApiConstants.monthlyRecap,
+      queryParams: {'month': month.toString(), 'year': year.toString()},
+    );
+    return (response as List).map((e) => RecapModel.fromJson(e)).toList();
   }
 
   @override

@@ -5,6 +5,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../injection.dart';
+import '../../../auth/domain/repositories/auth_repository.dart';
+import '../../../auth/presentation/screens/login_screen.dart';
 import '../cubit/attendance_cubit.dart';
 import '../cubit/attendance_state.dart';
 
@@ -32,12 +34,47 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  Future<void> _handleLogout(BuildContext context) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Keluar'),
+        content: const Text('Yakin mau logout?'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Batal')),
+          TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Keluar')),
+        ],
+      ),
+    );
+
+    if (confirm == true && context.mounted) {
+      await getIt<AuthRepository>().logout();
+      if (context.mounted) {
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => const LoginScreen()),
+          (route) => false,
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => getIt<AttendanceCubit>()..loadHistory(),
       child: Scaffold(
         backgroundColor: AppColors.background,
+        extendBodyBehindAppBar: true,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.logout_rounded, color: Colors.white),
+              onPressed: () => _handleLogout(context),
+            ),
+          ],
+        ),
         body: BlocConsumer<AttendanceCubit, AttendanceState>(
           listener: (context, state) {
             if (state is CheckInSuccess) {
