@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:siabsen_app/features/navigation/presentation/screens/main_navigation.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../injection.dart';
 import '../../../admin/presentation/screens/dashboard_screen.dart';
@@ -35,7 +36,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 );
               } else {
                 Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (_) => const HomeScreen()),
+                  MaterialPageRoute(builder: (_) => const MainNavigation()),
                 );
               }
             } else if (state is AuthFailure) {

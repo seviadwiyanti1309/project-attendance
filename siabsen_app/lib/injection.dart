@@ -23,6 +23,10 @@ import 'features/admin/domain/usecases/add_employee_usecase.dart';
 import 'features/admin/presentation/cubit/admin_cubit.dart';
 import 'features/admin/domain/usecases/delete_employee_usecase.dart';
 
+import 'features/profile/data/repositories/profile_repository_impl.dart';
+import 'features/profile/domain/repositories/profile_repository.dart';
+import 'features/profile/domain/usecases/get_profile_usecase.dart';
+
 final getIt = GetIt.instance;
 
 void setupInjection() {
@@ -56,4 +60,10 @@ void setupInjection() {
   getIt.registerLazySingleton(() => GetMonthlyRecapUsecase(getIt()));
   getIt.registerLazySingleton(() => DeleteEmployeeUsecase(getIt()));
   getIt.registerFactory(() => AdminCubit(getIt(), getIt(), getIt(), getIt(), getIt()));
+
+  // Profile feature
+  getIt.registerLazySingleton<ProfileRepository>(
+    () => ProfileRepositoryImpl(getIt()),
+  );
+  getIt.registerLazySingleton(() => GetProfileUsecase(getIt()));
 }
