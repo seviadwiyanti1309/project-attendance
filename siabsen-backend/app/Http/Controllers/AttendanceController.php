@@ -120,12 +120,25 @@ class AttendanceController extends Controller
                 ->whereYear('date', $year)
                 ->get();
 
-            $totalOvertimeMinutes = $attendances->sum('overtime_minutes');
             $totalHadir = $attendances->count();
             $totalTelat = $attendances->where('status', 'telat')->count();
 
-            $hourlyRate = $employee->base_salary / 173; // 173 = rata-rata jam kerja/bulan
-            $overtimePay = ($totalOvertimeMinutes / 60) * $hourlyRate * 1.5;
+            $approvedOvertimes = \App\Models\OvertimeRequest::where('user_id', $employee->id)
+                ->where('status', 'approved')
+                ->whereMonth('date', $month)
+                ->whereYear('date', $year)
+                ->get();
+
+            $hourlyRate = ($employee->base_salary + $employee->tunjangan_tetap) / 173;
+            $totalOvertimeMinutes = 0;
+            $totalOvertimePay = 0;
+
+            foreach ($approvedOvertimes as $overtime) {
+                $totalOvertimeMinutes += $overtime->duration_minutes;
+                $hours = $overtime->duration_minutes / 60;
+                $isWeekend = \Carbon\Carbon::parse($overtime->date)->isWeekend();
+                $totalOvertimePay += $this->calculateOvertimePay($hours, $isWeekend, $hourlyRate);
+            }
 
             return [
                 'employee_id' => $employee->id,
@@ -134,11 +147,55 @@ class AttendanceController extends Controller
                 'total_telat' => $totalTelat,
                 'total_overtime_minutes' => $totalOvertimeMinutes,
                 'base_salary' => $employee->base_salary,
-                'estimated_overtime_pay' => round($overtimePay, 2),
-                'estimated_total_salary' => round($employee->base_salary + $overtimePay, 2),
+                'estimated_overtime_pay' => round($totalOvertimePay, 2),
+                'estimated_total_salary' => round($employee->base_salary + $totalOvertimePay, 2),
             ];
         });
 
         return response()->json($recap);
+    }
+
+    private function calculateOvertimePay($hours, $isWeekend, $hourlyRate)
+    {
+        $pay = 0;
+        $remaining = $hours;
+
+        if ($isWeekend) {
+            // Jam 1-8: 2x
+            $tier1 = min($remaining, 8);
+            $pay += $tier1 * 2 * $hourlyRate;
+            $remaining -= $tier1;
+
+            // Jam 9: 3x
+            if ($remaining > 0) {
+                $tier2 = min($remaining, 1);
+                $pay += $tier2 * 3 * $hourlyRate;
+                $remaining -= $tier2;
+            }
+
+            // Jam 10-11: 4x
+            if ($remaining > 0) {
+                $tier3 = min($remaining, 2);
+                $pay += $tier3 * 4 * $hourlyRate;
+                $remaining -= $tier3;
+            }
+
+            // Lebih dari jam 11: tetap 4x (asumsi lanjutan pola tertinggi)
+            if ($remaining > 0) {
+                $pay += $remaining * 4 * $hourlyRate;
+            }
+        } else {
+            // Jam ke-1: 1.5x
+            $tier1 = min($remaining, 1);
+            $pay += $tier1 * 1.5 * $hourlyRate;
+            $remaining -= $tier1;
+
+            // Jam ke-2 dst: 2x
+            if ($remaining > 0) {
+                $pay += $remaining * 2 * $hourlyRate;
+            }
+        }
+
+        return $pay;
     }
 }

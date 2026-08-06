@@ -23,6 +23,8 @@ class EmployeeController extends Controller
             'base_salary' => 'nullable|numeric',
             'standard_check_in' => 'nullable',
             'standard_check_out' => 'nullable',
+            'tunjangan_tetap' => 'nullable|numeric',
+            
         ]);
 
         $employee = User::create([
@@ -34,6 +36,7 @@ class EmployeeController extends Controller
             'base_salary' => $request->base_salary ?? 0,
             'standard_check_in' => $request->standard_check_in ?? '08:00:00',
             'standard_check_out' => $request->standard_check_out ?? '17:00:00',
+            'tunjangan_tetap' => $request->tunjangan_tetap ?? 0,
         ]);
 
         return response()->json($employee, 201);

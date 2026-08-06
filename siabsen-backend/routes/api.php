@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\EmployeeController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\OvertimeController;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
@@ -11,6 +12,8 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/user', fn (Illuminate\Http\Request $request) => $request->user());
+    Route::post('/overtime/submit', [OvertimeController::class, 'submit']);
+    Route::get('/overtime/history', [OvertimeController::class, 'history']);
 
     // Bisa diakses karyawan & admin
     Route::post('/check-in', [AttendanceController::class, 'checkIn']);
@@ -27,5 +30,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/employees', [EmployeeController::class, 'store']);
         Route::put('/employees/{id}', [EmployeeController::class, 'update']);
         Route::delete('/employees/{id}', [EmployeeController::class, 'destroy']);
+
+        Route::get('/overtime/pending', [OvertimeController::class, 'pendingList']);
+        Route::put('/overtime/{id}/approve', [OvertimeController::class, 'approve']);
+        Route::put('/overtime/{id}/reject', [OvertimeController::class, 'reject']);
     });
 });
