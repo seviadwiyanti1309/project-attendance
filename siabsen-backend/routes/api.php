@@ -19,6 +19,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/check-in', [AttendanceController::class, 'checkIn']);
     Route::post('/check-out', [AttendanceController::class, 'checkOut']);
     Route::get('/attendances/history', [AttendanceController::class, 'history']);
+    Route::post('/attendances/leave', [AttendanceController::class, 'submitLeave']);
 
     // Khusus admin
     Route::middleware('admin')->group(function () {

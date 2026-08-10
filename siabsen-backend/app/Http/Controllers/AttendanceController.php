@@ -198,4 +198,29 @@ class AttendanceController extends Controller
 
         return $pay;
     }
+
+    public function submitLeave(Request $request)
+    {
+        $request->validate([
+            'type' => 'required|in:izin,sakit',
+            'reason' => 'required|string',
+        ]);
+
+        $user = $request->user();
+        $today = Carbon::today()->toDateString();
+
+        $existing = Attendance::where('user_id', $user->id)->where('date', $today)->first();
+        if ($existing) {
+            return response()->json(['message' => 'Sudah ada catatan absensi hari ini'], 400);
+        }
+
+        $attendance = Attendance::create([
+            'user_id' => $user->id,
+            'date' => $today,
+            'status' => $request->type,
+            'leave_reason' => $request->reason,
+        ]);
+
+        return response()->json(['message' => 'Pengajuan berhasil dicatat', 'data' => $attendance]);
+    }
 }

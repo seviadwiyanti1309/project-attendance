@@ -19,7 +19,7 @@ class OvertimeController extends Controller
 
         $start = Carbon::parse($request->start_time);
         $end = Carbon::parse($request->end_time);
-        $durationMinutes = $end->diffInMinutes($start);
+        $durationMinutes = $end->diffInMinutes($start, true);
 
         if ($durationMinutes <= 0) {
             return response()->json(['message' => 'Jam selesai harus setelah jam mulai'], 400);
