@@ -27,6 +27,88 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  void _showLeaveDialog(BuildContext context) {
+    String selectedType = 'izin';
+    final reasonController = TextEditingController();
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) {
+        return StatefulBuilder(
+          builder: (sheetContext, setSheetState) {
+            return Padding(
+              padding: EdgeInsets.only(bottom: MediaQuery.of(sheetContext).viewInsets.bottom),
+              child: Container(
+                padding: const EdgeInsets.all(24),
+                decoration: const BoxDecoration(
+                  color: AppColors.cardWhite,
+                  borderRadius: BorderRadius.only(topLeft: Radius.circular(24), topRight: Radius.circular(24)),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Ajukan Izin/Sakit', style: GoogleFonts.plusJakartaSans(fontSize: 18, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: RadioListTile<String>(
+                            value: 'izin',
+                            groupValue: selectedType,
+                            title: const Text('Izin'),
+                            onChanged: (val) => setSheetState(() => selectedType = val!),
+                            contentPadding: EdgeInsets.zero,
+                          ),
+                        ),
+                        Expanded(
+                          child: RadioListTile<String>(
+                            value: 'sakit',
+                            groupValue: selectedType,
+                            title: const Text('Sakit'),
+                            onChanged: (val) => setSheetState(() => selectedType = val!),
+                            contentPadding: EdgeInsets.zero,
+                          ),
+                        ),
+                      ],
+                    ),
+                    TextField(
+                      controller: reasonController,
+                      maxLines: 3,
+                      decoration: const InputDecoration(labelText: 'Keterangan'),
+                    ),
+                    const SizedBox(height: 20),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 50,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                        ),
+                        onPressed: () {
+                          if (reasonController.text.trim().isEmpty) return;
+                          context.read<AttendanceCubit>().submitLeave(
+                                type: selectedType,
+                                reason: reasonController.text.trim(),
+                              );
+                          Navigator.pop(sheetContext);
+                        },
+                        child: Text('Kirim', style: GoogleFonts.plusJakartaSans(color: Colors.white, fontWeight: FontWeight.w600)),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
   Future<void> _handleCheckOut(BuildContext context) async {
     final photo = await _picker.pickImage(source: ImageSource.camera, imageQuality: 70);
     if (photo != null && context.mounted) {
@@ -77,26 +159,32 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         body: BlocConsumer<AttendanceCubit, AttendanceState>(
           listener: (context, state) {
-            if (state is CheckInSuccess) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Check-in berhasil'), backgroundColor: AppColors.success),
-              );
-              context.read<AttendanceCubit>().loadHistory();
-            } else if (state is CheckOutSuccess) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Check-out berhasil'), backgroundColor: AppColors.success),
-              );
-              context.read<AttendanceCubit>().loadHistory();
-            } else if (state is AttendanceFailure) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(state.message), backgroundColor: AppColors.danger),
-              );
-            }
-          },
+  if (state is CheckInSuccess) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Check-in berhasil'), backgroundColor: AppColors.success),
+    );
+    context.read<AttendanceCubit>().loadHistory();
+  } else if (state is CheckOutSuccess) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Check-out berhasil'), backgroundColor: AppColors.success),
+    );
+    context.read<AttendanceCubit>().loadHistory();
+  } else if (state is LeaveSubmitSuccess) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Pengajuan izin/sakit berhasil dikirim'), backgroundColor: AppColors.success),
+    );
+    context.read<AttendanceCubit>().loadHistory();
+  } else if (state is AttendanceFailure) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(state.message), backgroundColor: AppColors.danger),
+    );
+  }
+},
           builder: (context, state) {
             final isLoading = state is AttendanceLoading;
             final history = state is HistoryLoaded ? state.items : <dynamic>[];
             final today = history.isNotEmpty ? history.first : null;
+            final isLeaveToday = today?.status == 'izin' || today?.status == 'sakit';
 
             return RefreshIndicator(
               onRefresh: () async => context.read<AttendanceCubit>().loadHistory(),
@@ -121,7 +209,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 label: 'Check In',
                                 icon: Icons.login_rounded,
                                 color: AppColors.primary,
-                                enabled: today?.checkInTime == null,
+                                enabled: today?.checkInTime == null && !isLeaveToday,
                                 loading: isLoading,
                                 onTap: () => _handleCheckIn(context),
                               ),
@@ -132,12 +220,26 @@ class _HomeScreenState extends State<HomeScreen> {
                                 label: 'Check Out',
                                 icon: Icons.logout_rounded,
                                 color: AppColors.primaryDark,
-                                enabled: today?.checkInTime != null && today?.checkOutTime == null,
+                                enabled: today?.checkInTime != null && today?.checkOutTime == null && !isLeaveToday,
                                 loading: isLoading,
                                 onTap: () => _handleCheckOut(context),
                               ),
                             ),
                           ],
+                        ),
+                        const SizedBox(height: 12),
+                        SizedBox(
+                          width: double.infinity,
+                          child: OutlinedButton.icon(
+                            onPressed: today == null ? () => _showLeaveDialog(context) : null,
+                            icon: const Icon(Icons.event_busy_rounded, color: AppColors.primary),
+                            label: Text('Ajukan Izin/Sakit', style: GoogleFonts.plusJakartaSans(color: AppColors.primary, fontWeight: FontWeight.w600)),
+                            style: OutlinedButton.styleFrom(
+                              side: const BorderSide(color: AppColors.primary),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                            ),
+                          ),
                         ),
                         const SizedBox(height: 24),
                         Text(
@@ -226,7 +328,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildHistoryCard(dynamic item) {
-    Color statusColor = item.status == 'tepat_waktu' ? AppColors.success : item.status == 'telat' ? AppColors.warning : AppColors.danger;
+    Color statusColor = item.status == 'tepat_waktu' ? AppColors.success : item.status == 'telat' ? AppColors.warning : item.status == 'izin' || item.status == 'sakit' ? AppColors.primary : AppColors.danger;
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),

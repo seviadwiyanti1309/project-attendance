@@ -9,6 +9,8 @@ import '../../../auth/presentation/screens/login_screen.dart';
 import '../cubit/admin_cubit.dart';
 import '../cubit/admin_state.dart';
 import 'employee_list_screen.dart';
+import '../../../overtime/presentation/screens/overtime_approval_screen.dart';
+
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -82,6 +84,16 @@ class DashboardScreen extends StatelessWidget {
                             Navigator.of(context).push(
                               MaterialPageRoute(builder: (_) => const RecapScreen()),
                             );
+                          },
+                        ),
+                        const SizedBox(height: 12),
+                        _buildMenuCard(
+                          context,
+                          icon: Icons.pending_actions_rounded,
+                          title: 'Persetujuan Lembur',
+                          subtitle: 'Review pengajuan lembur karyawan',
+                          onTap: () {
+                            Navigator.of(context).push(MaterialPageRoute(builder: (_) => const OvertimeApprovalScreen()));
                           },
                         ),
                       ],

@@ -191,7 +191,7 @@ class _EmployeeListScreenState extends State<EmployeeListScreen> {
                           email: emailController.text.trim(),
                           password: passwordController.text.trim(),
                           position: positionController.text.trim().isEmpty ? null : positionController.text.trim(),
-                          baseSalary: double.tryParse(salaryController.text.trim()),
+                          baseSalary: double.tryParse(salaryController.text.trim().replaceAll('.', '').replaceAll(',', '')),
                         );
                         Navigator.pop(sheetContext);
                       },

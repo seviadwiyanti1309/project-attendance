@@ -29,4 +29,10 @@ class AttendanceRepositoryImpl implements AttendanceRepository {
     final response = await apiClient.get(ApiConstants.history);
     return (response as List).map((e) => AttendanceModel.fromJson(e)).toList();
   }
+
+  @override
+  Future<AttendanceEntity> submitLeave({required String type, required String reason}) async {
+    final response = await apiClient.post('/attendances/leave', {'type': type, 'reason': reason});
+    return AttendanceModel.fromJson(response['data']);
+  }
 }

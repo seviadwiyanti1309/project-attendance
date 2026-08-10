@@ -4,4 +4,5 @@ abstract class AttendanceRepository {
   Future<AttendanceEntity> checkIn(String photoPath);
   Future<AttendanceEntity> checkOut(String photoPath);
   Future<List<AttendanceEntity>> getHistory();
+  Future<AttendanceEntity> submitLeave({required String type, required String reason});
 }

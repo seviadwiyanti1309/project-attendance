@@ -1,5 +1,6 @@
 import 'package:get_it/get_it.dart';
 import 'package:siabsen_app/features/admin/domain/usecases/get_monthly_recap_usecase.dart';
+import 'package:siabsen_app/features/attendance/domain/usecases/submit_leave_usecase.dart';
 import 'core/network/api_client.dart';
 import 'core/utils/token_manager.dart';
 
@@ -27,6 +28,16 @@ import 'features/profile/data/repositories/profile_repository_impl.dart';
 import 'features/profile/domain/repositories/profile_repository.dart';
 import 'features/profile/domain/usecases/get_profile_usecase.dart';
 
+import 'features/overtime/data/repositories/overtime_repository_impl.dart';
+import 'features/overtime/domain/repositories/overtime_repository.dart';
+import 'features/overtime/domain/usecases/submit_overtime_usecase.dart';
+import 'features/overtime/domain/usecases/get_overtime_history_usecase.dart';
+import 'features/overtime/domain/usecases/get_pending_overtime_usecase.dart';
+import 'features/overtime/domain/usecases/review_overtime_usecase.dart';
+import 'features/overtime/presentation/cubit/overtime_cubit.dart';
+import 'features/overtime/presentation/cubit/overtime_approval_cubit.dart';
+
+
 final getIt = GetIt.instance;
 
 void setupInjection() {
@@ -48,7 +59,8 @@ void setupInjection() {
   getIt.registerLazySingleton(() => CheckInUsecase(getIt()));
   getIt.registerLazySingleton(() => CheckOutUsecase(getIt()));
   getIt.registerLazySingleton(() => GetHistoryUsecase(getIt()));
-  getIt.registerFactory(() => AttendanceCubit(getIt(), getIt(), getIt()));
+  getIt.registerLazySingleton(() => SubmitLeaveUsecase(getIt()));
+  getIt.registerFactory(() => AttendanceCubit(getIt(), getIt(), getIt(), getIt()));
 
   // Admin feature
   getIt.registerLazySingleton<AdminRepository>(
@@ -66,4 +78,15 @@ void setupInjection() {
     () => ProfileRepositoryImpl(getIt()),
   );
   getIt.registerLazySingleton(() => GetProfileUsecase(getIt()));
+
+  // Overtime feature
+  getIt.registerLazySingleton<OvertimeRepository>(
+    () => OvertimeRepositoryImpl(getIt()),
+  );
+  getIt.registerLazySingleton(() => SubmitOvertimeUsecase(getIt()));
+  getIt.registerLazySingleton(() => GetOvertimeHistoryUsecase(getIt()));
+  getIt.registerLazySingleton(() => GetPendingOvertimeUsecase(getIt()));
+  getIt.registerLazySingleton(() => ReviewOvertimeUsecase(getIt()));
+  getIt.registerFactory(() => OvertimeCubit(getIt(), getIt()));
+  getIt.registerFactory(() => OvertimeApprovalCubit(getIt(), getIt()));
 }

@@ -32,3 +32,8 @@ class AttendanceFailure extends AttendanceState {
   @override
   List<Object?> get props => [message];
 }
+
+class LeaveSubmitSuccess extends AttendanceState {
+  final dynamic data;
+  LeaveSubmitSuccess(this.data);
+}
