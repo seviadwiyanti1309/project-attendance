@@ -15,27 +15,43 @@ class AttendanceCubit extends Cubit<AttendanceState> {
   AttendanceCubit(this.checkInUsecase, this.checkOutUsecase, this.getHistoryUsecase, this.submitLeaveUsecase)
       : super(AttendanceInitial());
 
-  Future<void> checkIn(String photoPath) async {
+  Future<void> checkIn({
+    required String photoPath,
+    required double latitude,
+    required double longitude,
+  }) async {
     emit(AttendanceLoading());
     try {
-      final data = await checkInUsecase(photoPath);
+      final data = await checkInUsecase(
+        photoPath: photoPath,
+        latitude: latitude,
+        longitude: longitude,
+      );
       emit(CheckInSuccess(data));
     } on ApiException catch (e) {
       emit(AttendanceFailure(e.message));
     } catch (e) {
-      emit(AttendanceFailure('Gagal check-in, coba lagi'));
+      emit(AttendanceFailure(e.toString().replaceAll('Exception: ', '')));
     }
   }
 
-  Future<void> checkOut(String photoPath) async {
+  Future<void> checkOut({
+    required String photoPath,
+    required double latitude,
+    required double longitude,
+  }) async {
     emit(AttendanceLoading());
     try {
-      final data = await checkOutUsecase(photoPath);
+      final data = await checkOutUsecase(
+        photoPath: photoPath,
+        latitude: latitude,
+        longitude: longitude,
+      );
       emit(CheckOutSuccess(data));
     } on ApiException catch (e) {
       emit(AttendanceFailure(e.message));
     } catch (e) {
-      emit(AttendanceFailure('Gagal check-out, coba lagi'));
+      emit(AttendanceFailure(e.toString().replaceAll('Exception: ', '')));
     }
   }
 

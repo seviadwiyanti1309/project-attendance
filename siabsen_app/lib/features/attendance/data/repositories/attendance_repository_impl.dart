@@ -9,17 +9,37 @@ class AttendanceRepositoryImpl implements AttendanceRepository {
   AttendanceRepositoryImpl(this.apiClient);
 
   @override
-  Future<AttendanceEntity> checkIn(String photoPath) async {
+  Future<AttendanceEntity> checkIn({
+    required String photoPath,
+    required double latitude,
+    required double longitude,
+  }) async {
     final response = await apiClient.multipartPost(
-      ApiConstants.checkIn, {}, photoPath, 'photo',
+      ApiConstants.checkIn,
+      {
+        'latitude': latitude.toString(),
+        'longitude': longitude.toString(),
+      },
+      photoPath,
+      'photo',
     );
     return AttendanceModel.fromJson(response['data']);
   }
 
   @override
-  Future<AttendanceEntity> checkOut(String photoPath) async {
+  Future<AttendanceEntity> checkOut({
+    required String photoPath,
+    required double latitude,
+    required double longitude,
+  }) async {
     final response = await apiClient.multipartPost(
-      ApiConstants.checkOut, {}, photoPath, 'photo',
+      ApiConstants.checkOut,
+      {
+        'latitude': latitude.toString(),
+        'longitude': longitude.toString(),
+      },
+      photoPath,
+      'photo',
     );
     return AttendanceModel.fromJson(response['data']);
   }

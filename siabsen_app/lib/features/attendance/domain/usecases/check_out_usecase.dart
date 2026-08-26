@@ -4,5 +4,14 @@ import '../repositories/attendance_repository.dart';
 class CheckOutUsecase {
   final AttendanceRepository repository;
   CheckOutUsecase(this.repository);
-  Future<AttendanceEntity> call(String photoPath) => repository.checkOut(photoPath);
+  Future<AttendanceEntity> call({
+    required String photoPath,
+    required double latitude,
+    required double longitude,
+  }) =>
+      repository.checkOut(
+        photoPath: photoPath,
+        latitude: latitude,
+        longitude: longitude,
+      );
 }

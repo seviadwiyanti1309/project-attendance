@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import '../../../../core/services/location_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../injection.dart';
 import '../../../auth/domain/repositories/auth_repository.dart';
@@ -34,8 +35,25 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _handleCheckIn(BuildContext context) async {
     final photo = await _picker.pickImage(source: ImageSource.camera, imageQuality: 70);
-    if (photo != null && context.mounted) {
-      context.read<AttendanceCubit>().checkIn(photo.path);
+    if (photo == null || !context.mounted) return;
+
+    try {
+      final position = await LocationService.getCurrentLocation();
+      if (!context.mounted) return;
+      context.read<AttendanceCubit>().checkIn(
+            photoPath: photo.path,
+            latitude: position.latitude,
+            longitude: position.longitude,
+          );
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.toString().replaceAll('Exception: ', '')),
+            backgroundColor: AppColors.danger,
+          ),
+        );
+      }
     }
   }
 
@@ -123,8 +141,25 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _handleCheckOut(BuildContext context) async {
     final photo = await _picker.pickImage(source: ImageSource.camera, imageQuality: 70);
-    if (photo != null && context.mounted) {
-      context.read<AttendanceCubit>().checkOut(photo.path);
+    if (photo == null || !context.mounted) return;
+
+    try {
+      final position = await LocationService.getCurrentLocation();
+      if (!context.mounted) return;
+      context.read<AttendanceCubit>().checkOut(
+            photoPath: photo.path,
+            latitude: position.latitude,
+            longitude: position.longitude,
+          );
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.toString().replaceAll('Exception: ', '')),
+            backgroundColor: AppColors.danger,
+          ),
+        );
+      }
     }
   }
 
@@ -360,6 +395,27 @@ class _HomeScreenState extends State<HomeScreen> {
                 Text(item.date, style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w600, color: AppColors.textDark)),
                 Text('Masuk: ${item.checkInTime ?? '-'}  •  Pulang: ${item.checkOutTime ?? '-'}',
                     style: GoogleFonts.plusJakartaSans(fontSize: 12, color: AppColors.textGrey)),
+                if (item.checkInAddress != null && item.checkInAddress!.isNotEmpty) ...[
+                  const SizedBox(height: 3),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Padding(
+                        padding: EdgeInsets.only(top: 1),
+                        child: Icon(Icons.location_on_rounded, size: 12, color: AppColors.primary),
+                      ),
+                      const SizedBox(width: 3),
+                      Expanded(
+                        child: Text(
+                          item.checkInAddress!,
+                          style: GoogleFonts.plusJakartaSans(fontSize: 11, color: AppColors.textGrey),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ],
             ),
           ),
