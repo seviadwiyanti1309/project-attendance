@@ -6,9 +6,17 @@ use App\Models\Attendance;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
+use App\Services\CloudinaryService;
 
 class AttendanceController extends Controller
 {
+    protected CloudinaryService $cloudinary;
+
+    public function __construct(CloudinaryService $cloudinary)
+    {
+        $this->cloudinary = $cloudinary;
+    }
+
     public function checkIn(Request $request)
     {
         $request->validate([
@@ -27,7 +35,7 @@ class AttendanceController extends Controller
         $standardCheckIn = Carbon::parse($user->standard_check_in);
         $status = $now->format('H:i:s') > $standardCheckIn->format('H:i:s') ? 'telat' : 'tepat_waktu';
 
-        $photoPath = $request->file('photo')->store('selfies', 'public');
+        $photoPath = $this->cloudinary->upload($request->file('photo'), 'siabsen/checkin');
 
         $attendance = Attendance::create([
             'user_id' => $user->id,
@@ -62,7 +70,7 @@ class AttendanceController extends Controller
             $overtimeMinutes = $now->diffInMinutes($standardCheckOut);
         }
 
-        $photoPath = $request->file('photo')->store('selfies', 'public');
+        $photoPath = $this->cloudinary->upload($request->file('photo'), 'siabsen/checkout');
 
         $attendance->update([
             'check_out_time' => $now->format('H:i:s'),
