@@ -7,14 +7,17 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
 use App\Services\CloudinaryService;
+use App\Services\GeocodingService;
 
 class AttendanceController extends Controller
 {
     protected CloudinaryService $cloudinary;
+    protected GeocodingService $geocoding;
 
-    public function __construct(CloudinaryService $cloudinary)
+    public function __construct(CloudinaryService $cloudinary, GeocodingService $geocoding)
     {
         $this->cloudinary = $cloudinary;
+        $this->geocoding = $geocoding;
     }
 
     public function checkIn(Request $request)
@@ -35,15 +38,20 @@ class AttendanceController extends Controller
         $standardCheckIn = Carbon::parse($user->standard_check_in);
         $status = $now->format('H:i:s') > $standardCheckIn->format('H:i:s') ? 'telat' : 'tepat_waktu';
 
-        $photoPath = $this->cloudinary->upload($request->file('photo'), 'siabsen/checkin');
+        $photoUrl = $this->cloudinary->upload($request->file('photo'), 'siabsen/checkin');
+        $address = $this->geocoding->getAddress($request->latitude, $request->longitude);
 
         $attendance = Attendance::create([
             'user_id' => $user->id,
             'date' => $today,
-            'check_in_time' => $now->format('H:i:s'),
-            'check_in_photo' => $photoPath,
+            'check_in_time' => $now->toTimeString(),
+            'check_in_photo' => $photoUrl,
+            'check_in_latitude' => $request->latitude,
+            'check_in_longitude' => $request->longitude,
+            'check_in_address' => $address,
             'status' => $status,
         ]);
+
 
         return response()->json(['message' => 'Check-in berhasil', 'data' => $attendance]);
     }
@@ -70,13 +78,17 @@ class AttendanceController extends Controller
             $overtimeMinutes = $now->diffInMinutes($standardCheckOut);
         }
 
-        $photoPath = $this->cloudinary->upload($request->file('photo'), 'siabsen/checkout');
+        $photoUrl = $this->cloudinary->upload($request->file('photo'), 'siabsen/checkout');
+        $address = $this->geocoding->getAddress($request->latitude, $request->longitude);
 
         $attendance->update([
-            'check_out_time' => $now->format('H:i:s'),
-            'check_out_photo' => $photoPath,
-            'overtime_minutes' => $overtimeMinutes,
+            'check_out_time' => $now->toTimeString(),
+            'check_out_photo' => $photoUrl,
+            'check_out_latitude' => $request->latitude,
+            'check_out_longitude' => $request->longitude,
+            'check_out_address' => $address,
         ]);
+
 
         return response()->json(['message' => 'Check-out berhasil', 'data' => $attendance]);
     }
