@@ -1,12 +1,13 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../injection.dart';
 import '../../../auth/domain/repositories/auth_repository.dart';
 import '../../../auth/presentation/screens/login_screen.dart';
+import '../../domain/entities/attendance_entity.dart';
 import '../cubit/attendance_cubit.dart';
 import '../cubit/attendance_state.dart';
 
@@ -19,6 +20,17 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final ImagePicker _picker = ImagePicker();
+
+  bool _isToday(String dateStr) {
+    try {
+      final parsed = DateTime.parse(dateStr);
+      final now = DateTime.now();
+      return parsed.year == now.year && parsed.month == now.month && parsed.day == now.day;
+    } catch (_) {
+      final todayStr = DateFormat('yyyy-MM-dd').format(DateTime.now());
+      return dateStr.startsWith(todayStr);
+    }
+  }
 
   Future<void> _handleCheckIn(BuildContext context) async {
     final photo = await _picker.pickImage(source: ImageSource.camera, imageQuality: 70);
@@ -182,8 +194,8 @@ class _HomeScreenState extends State<HomeScreen> {
 },
           builder: (context, state) {
             final isLoading = state is AttendanceLoading;
-            final history = state is HistoryLoaded ? state.items : <dynamic>[];
-            final today = history.isNotEmpty ? history.first : null;
+            final history = state is HistoryLoaded ? state.items : <AttendanceEntity>[];
+            final today = history.where((item) => _isToday(item.date)).firstOrNull;
             final isLeaveToday = today?.status == 'izin' || today?.status == 'sakit';
 
             return RefreshIndicator(
