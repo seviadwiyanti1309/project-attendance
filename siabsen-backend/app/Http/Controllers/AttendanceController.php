@@ -120,11 +120,58 @@ class AttendanceController extends Controller
 
     public function allAttendances(Request $request)
     {
-        $attendances = Attendance::with('user:id,name,position')
+        $query = Attendance::with('user:id,name,position,email')
             ->orderBy('date', 'desc')
-            ->get();
+            ->orderBy('check_in_time', 'desc');
+
+        if ($request->filled('date')) {
+            $query->where('date', $request->date);
+        }
+
+        if ($request->filled('month') && $request->filled('year')) {
+            $query->whereMonth('date', $request->month)
+                ->whereYear('date', $request->year);
+        } elseif ($request->filled('month')) {
+            $query->whereMonth('date', $request->month);
+        } elseif ($request->filled('year')) {
+            $query->whereYear('date', $request->year);
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->filled('user_id')) {
+            $query->where('user_id', $request->user_id);
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->whereHas('user', function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('position', 'like', "%{$search}%");
+            });
+        }
+
+        $attendances = $query->get();
 
         return response()->json($attendances);
+    }
+
+    public function show(Request $request, $id)
+    {
+        $attendance = Attendance::with('user:id,name,position,email')->find($id);
+
+        if (!$attendance) {
+            return response()->json(['message' => 'Data absensi tidak ditemukan'], 404);
+        }
+
+        // Jika bukan admin, hanya bisa melihat data absensi miliknya sendiri
+        if ($request->user()->role !== 'admin' && $attendance->user_id !== $request->user()->id) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        return response()->json($attendance);
     }
 
     public function monthlyRecap(Request $request)

@@ -21,11 +21,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/attendances/history', [AttendanceController::class, 'history']);
     Route::post('/attendances/leave', [AttendanceController::class, 'submitLeave']);
 
-    // Khusus admin
+    // Khusus admin - harus SEBELUM route {id}
     Route::middleware('admin')->group(function () {
         Route::get('/attendances/all', [AttendanceController::class, 'allAttendances']);
-        Route::get('/dashboard/summary', [AttendanceController::class, 'dashboardSummary']);
         Route::get('/attendances/monthly-recap', [AttendanceController::class, 'monthlyRecap']);
+        Route::get('/dashboard/summary', [AttendanceController::class, 'dashboardSummary']);
 
         Route::get('/employees', [EmployeeController::class, 'index']);
         Route::post('/employees', [EmployeeController::class, 'store']);
@@ -36,4 +36,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/overtime/{id}/approve', [OvertimeController::class, 'approve']);
         Route::put('/overtime/{id}/reject', [OvertimeController::class, 'reject']);
     });
+
+    // Route dengan parameter dinamis - HARUS di bawah semua route spesifik!
+    Route::get('/attendances/{id}', [AttendanceController::class, 'show']);
 });
