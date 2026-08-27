@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:siabsen_app/features/admin/presentation/screens/attendance_recap_screen.dart';
 import 'package:siabsen_app/features/admin/presentation/screens/recap_screen.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../injection.dart';
@@ -10,7 +11,6 @@ import '../cubit/admin_cubit.dart';
 import '../cubit/admin_state.dart';
 import 'employee_list_screen.dart';
 import '../../../overtime/presentation/screens/overtime_approval_screen.dart';
-
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -47,20 +47,35 @@ class DashboardScreen extends StatelessWidget {
                       children: [
                         Text(
                           'Ringkasan Hari Ini',
-                          style: GoogleFonts.plusJakartaSans(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textDark),
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.textDark,
+                          ),
                         ),
                         const SizedBox(height: 12),
                         if (state is AdminLoading)
                           const Padding(
                             padding: EdgeInsets.symmetric(vertical: 40),
-                            child: Center(child: CircularProgressIndicator(color: AppColors.primary)),
+                            child: Center(
+                              child: CircularProgressIndicator(
+                                color: AppColors.primary,
+                              ),
+                            ),
                           )
                         else if (state is DashboardLoaded)
                           _buildSummaryGrid(state.summary)
                         else if (state is AdminFailure)
                           Padding(
                             padding: const EdgeInsets.symmetric(vertical: 24),
-                            child: Center(child: Text(state.message, style: GoogleFonts.plusJakartaSans(color: AppColors.textGrey))),
+                            child: Center(
+                              child: Text(
+                                state.message,
+                                style: GoogleFonts.plusJakartaSans(
+                                  color: AppColors.textGrey,
+                                ),
+                              ),
+                            ),
                           ),
                         const SizedBox(height: 24),
                         _buildMenuCard(
@@ -70,7 +85,9 @@ class DashboardScreen extends StatelessWidget {
                           subtitle: 'Lihat dan tambah data karyawan',
                           onTap: () {
                             Navigator.of(context).push(
-                              MaterialPageRoute(builder: (_) => const EmployeeListScreen()),
+                              MaterialPageRoute(
+                                builder: (_) => const EmployeeListScreen(),
+                              ),
                             );
                           },
                         ),
@@ -82,10 +99,13 @@ class DashboardScreen extends StatelessWidget {
                           subtitle: 'Lihat rekap bulanan per karyawan',
                           onTap: () {
                             Navigator.of(context).push(
-                              MaterialPageRoute(builder: (_) => const RecapScreen()),
+                              MaterialPageRoute(
+                                builder: (_) => const RecapScreen(),
+                              ),
                             );
                           },
                         ),
+
                         const SizedBox(height: 12),
                         _buildMenuCard(
                           context,
@@ -93,7 +113,26 @@ class DashboardScreen extends StatelessWidget {
                           title: 'Persetujuan Lembur',
                           subtitle: 'Review pengajuan lembur karyawan',
                           onTap: () {
-                            Navigator.of(context).push(MaterialPageRoute(builder: (_) => const OvertimeApprovalScreen()));
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => const OvertimeApprovalScreen(),
+                              ),
+                            );
+                          },
+                        ),
+
+                        const SizedBox(height: 12),
+                        _buildMenuCard(
+                          context,
+                          icon: Icons.pending_actions_rounded,
+                          title: 'Rekap Absensi',
+                          subtitle: 'Review absensi karyawan',
+                          onTap: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => const AttendanceRecapScreen(),
+                              ),
+                            );
                           },
                         ),
                       ],
@@ -115,8 +154,14 @@ class DashboardScreen extends StatelessWidget {
         title: const Text('Keluar'),
         content: const Text('Yakin mau logout?'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Batal')),
-          TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Keluar')),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Batal'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Keluar'),
+          ),
         ],
       ),
     );
@@ -137,22 +182,45 @@ class DashboardScreen extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(20, 48, 20, 32),
       decoration: const BoxDecoration(
         gradient: AppColors.gradientPurple,
-        borderRadius: BorderRadius.only(bottomLeft: Radius.circular(28), bottomRight: Radius.circular(28)),
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(28),
+          bottomRight: Radius.circular(28),
+        ),
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(color: Colors.white.withOpacity(0.15), borderRadius: BorderRadius.circular(16)),
-            child: const Icon(Icons.admin_panel_settings_rounded, color: Colors.white, size: 28),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.15),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: const Icon(
+              Icons.admin_panel_settings_rounded,
+              color: Colors.white,
+              size: 28,
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Selamat datang 👋', style: GoogleFonts.plusJakartaSans(fontSize: 13, color: Colors.white.withOpacity(0.8))),
-                Text('Admin/HR', style: GoogleFonts.plusJakartaSans(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
+                Text(
+                  'Selamat datang 👋',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 13,
+                    color: Colors.white.withOpacity(0.8),
+                  ),
+                ),
+                Text(
+                  'Admin/HR',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
               ],
             ),
           ),
@@ -163,10 +231,30 @@ class DashboardScreen extends StatelessWidget {
 
   Widget _buildSummaryGrid(dynamic summary) {
     final items = [
-      {'label': 'Total Karyawan', 'value': summary.totalKaryawan, 'icon': Icons.groups_rounded, 'color': AppColors.primary},
-      {'label': 'Hadir Hari Ini', 'value': summary.hadirHariIni, 'icon': Icons.check_circle_rounded, 'color': AppColors.success},
-      {'label': 'Telat', 'value': summary.telatHariIni, 'icon': Icons.schedule_rounded, 'color': AppColors.warning},
-      {'label': 'Belum Hadir', 'value': summary.belumHadir, 'icon': Icons.cancel_rounded, 'color': AppColors.danger},
+      {
+        'label': 'Total Karyawan',
+        'value': summary.totalKaryawan,
+        'icon': Icons.groups_rounded,
+        'color': AppColors.primary,
+      },
+      {
+        'label': 'Hadir Hari Ini',
+        'value': summary.hadirHariIni,
+        'icon': Icons.check_circle_rounded,
+        'color': AppColors.success,
+      },
+      {
+        'label': 'Telat',
+        'value': summary.telatHariIni,
+        'icon': Icons.schedule_rounded,
+        'color': AppColors.warning,
+      },
+      {
+        'label': 'Belum Hadir',
+        'value': summary.belumHadir,
+        'icon': Icons.cancel_rounded,
+        'color': AppColors.danger,
+      },
     ];
 
     return GridView.count(
@@ -182,7 +270,13 @@ class DashboardScreen extends StatelessWidget {
           decoration: BoxDecoration(
             color: AppColors.cardWhite,
             borderRadius: BorderRadius.circular(18),
-            boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 8, offset: const Offset(0, 2))],
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.03),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -194,11 +288,28 @@ class DashboardScreen extends StatelessWidget {
                   color: (item['color'] as Color).withOpacity(0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: Icon(item['icon'] as IconData, color: item['color'] as Color, size: 20),
+                child: Icon(
+                  item['icon'] as IconData,
+                  color: item['color'] as Color,
+                  size: 20,
+                ),
               ),
               const SizedBox(height: 8),
-              Text('${item['value']}', style: GoogleFonts.plusJakartaSans(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.textDark)),
-              Text(item['label'] as String, style: GoogleFonts.plusJakartaSans(fontSize: 12, color: AppColors.textGrey)),
+              Text(
+                '${item['value']}',
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textDark,
+                ),
+              ),
+              Text(
+                item['label'] as String,
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 12,
+                  color: AppColors.textGrey,
+                ),
+              ),
             ],
           ),
         );
@@ -206,7 +317,13 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildMenuCard(BuildContext context, {required IconData icon, required String title, required String subtitle, required VoidCallback onTap}) {
+  Widget _buildMenuCard(
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+  }) {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(16),
@@ -215,13 +332,22 @@ class DashboardScreen extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppColors.cardWhite,
           borderRadius: BorderRadius.circular(16),
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 8, offset: const Offset(0, 2))],
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.03),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
         child: Row(
           children: [
             Container(
               padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(color: AppColors.primaryLight, borderRadius: BorderRadius.circular(12)),
+              decoration: BoxDecoration(
+                color: AppColors.primaryLight,
+                borderRadius: BorderRadius.circular(12),
+              ),
               child: Icon(icon, color: AppColors.primary, size: 22),
             ),
             const SizedBox(width: 12),
@@ -229,8 +355,20 @@ class DashboardScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w600, color: AppColors.textDark)),
-                  Text(subtitle, style: GoogleFonts.plusJakartaSans(fontSize: 12, color: AppColors.textGrey)),
+                  Text(
+                    title,
+                    style: GoogleFonts.plusJakartaSans(
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textDark,
+                    ),
+                  ),
+                  Text(
+                    subtitle,
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 12,
+                      color: AppColors.textGrey,
+                    ),
+                  ),
                 ],
               ),
             ),

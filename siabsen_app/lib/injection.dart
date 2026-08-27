@@ -1,5 +1,11 @@
+import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
+import 'package:siabsen_app/features/admin/data/datasources/attendance_recap_remote_datasource.dart';
+import 'package:siabsen_app/features/admin/data/repositories/attendance_recap_repository_impl.dart';
+import 'package:siabsen_app/features/admin/domain/repositories/attendance_recap_repository.dart';
+import 'package:siabsen_app/features/admin/domain/usecases/get_all_attendances.dart';
 import 'package:siabsen_app/features/admin/domain/usecases/get_monthly_recap_usecase.dart';
+import 'package:siabsen_app/features/admin/presentation/cubit/attendance_recap_cubit.dart';
 import 'package:siabsen_app/features/attendance/domain/usecases/submit_leave_usecase.dart';
 import 'core/network/api_client.dart';
 import 'core/utils/token_manager.dart';
@@ -37,7 +43,6 @@ import 'features/overtime/domain/usecases/review_overtime_usecase.dart';
 import 'features/overtime/presentation/cubit/overtime_cubit.dart';
 import 'features/overtime/presentation/cubit/overtime_approval_cubit.dart';
 
-
 final getIt = GetIt.instance;
 
 void setupInjection() {
@@ -60,7 +65,9 @@ void setupInjection() {
   getIt.registerLazySingleton(() => CheckOutUsecase(getIt()));
   getIt.registerLazySingleton(() => GetHistoryUsecase(getIt()));
   getIt.registerLazySingleton(() => SubmitLeaveUsecase(getIt()));
-  getIt.registerFactory(() => AttendanceCubit(getIt(), getIt(), getIt(), getIt()));
+  getIt.registerFactory(
+    () => AttendanceCubit(getIt(), getIt(), getIt(), getIt()),
+  );
 
   // Admin feature
   getIt.registerLazySingleton<AdminRepository>(
@@ -71,7 +78,9 @@ void setupInjection() {
   getIt.registerLazySingleton(() => AddEmployeeUsecase(getIt()));
   getIt.registerLazySingleton(() => GetMonthlyRecapUsecase(getIt()));
   getIt.registerLazySingleton(() => DeleteEmployeeUsecase(getIt()));
-  getIt.registerFactory(() => AdminCubit(getIt(), getIt(), getIt(), getIt(), getIt()));
+  getIt.registerFactory(
+    () => AdminCubit(getIt(), getIt(), getIt(), getIt(), getIt()),
+  );
 
   // Profile feature
   getIt.registerLazySingleton<ProfileRepository>(
@@ -89,4 +98,16 @@ void setupInjection() {
   getIt.registerLazySingleton(() => ReviewOvertimeUsecase(getIt()));
   getIt.registerFactory(() => OvertimeCubit(getIt(), getIt()));
   getIt.registerFactory(() => OvertimeApprovalCubit(getIt(), getIt()));
+
+  getIt.registerLazySingleton(
+    () => AttendanceRecapRemoteDataSource(getIt<ApiClient>()),
+  );
+  getIt.registerLazySingleton<AttendanceRecapRepository>(
+    () =>
+        AttendanceRecapRepositoryImpl(getIt<AttendanceRecapRemoteDataSource>()),
+  );
+  getIt.registerLazySingleton(
+    () => GetAllAttendances(getIt<AttendanceRecapRepository>()),
+  );
+  getIt.registerFactory(() => AttendanceRecapCubit(getIt<GetAllAttendances>()));
 }
